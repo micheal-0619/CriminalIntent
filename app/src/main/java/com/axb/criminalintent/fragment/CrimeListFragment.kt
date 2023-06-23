@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -60,9 +61,28 @@ class CrimeListFragment : Fragment() {
     * CrimeHolder的构造函数首先接收并保存view，
     * 然后将其作为值参传递给RecyclerView.ViewHolder的构造函数
     * */
-    private inner class CrimeHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val titleTextView: TextView = view.findViewById(R.id.crime_title)
-        val dateTextView: TextView = view.findViewById(R.id.crime_date)
+    private inner class CrimeHolder(view: View) : RecyclerView.ViewHolder(view),
+        View.OnClickListener {
+
+        private lateinit var crime: Crime
+
+        val titleTextView: TextView = itemView.findViewById(R.id.crime_title)
+        val dateTextView: TextView = itemView.findViewById(R.id.crime_date)
+
+        init {
+            itemView.setOnClickListener(this)
+        }
+
+        fun bind(crime: Crime) {
+            this.crime = crime
+            titleTextView.text = this.crime.title
+            dateTextView.text = this.crime.date.toString()
+
+        }
+
+        override fun onClick(view: View) {
+            Toast.makeText(context, "${crime.title} pressed", Toast.LENGTH_LONG).show()
+        }
     }
 
     /*
@@ -85,10 +105,8 @@ class CrimeListFragment : Fragment() {
 
         override fun onBindViewHolder(holder: CrimeHolder, position: Int) {
             val crime = crimes[position]
-            holder.apply {
-                titleTextView.text = crime.title
-                dateTextView.text = crime.date.toString()
-            }
+
+            holder.bind(crime)
         }
 
     }
