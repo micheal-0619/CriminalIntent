@@ -3,6 +3,7 @@ package com.axb.criminalintent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.axb.criminalintent.fragment.CrimeFragment
+import com.axb.criminalintent.fragment.CrimeListFragment
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -18,7 +19,8 @@ class MainActivity : AppCompatActivity() {
         * */
 
         if (currentFragment == null) {
-            val fragment = CrimeFragment()
+            //单例模式
+            val fragment = CrimeListFragment.newInstance()
             supportFragmentManager.beginTransaction().add(R.id.fragment_container, fragment)
                 .commit()
         }
