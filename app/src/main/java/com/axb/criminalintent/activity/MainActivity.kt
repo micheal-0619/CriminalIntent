@@ -1,8 +1,8 @@
-package com.axb.criminalintent
+package com.axb.criminalintent.activity
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.axb.criminalintent.fragment.CrimeFragment
+import com.axb.criminalintent.R
 import com.axb.criminalintent.fragment.CrimeListFragment
 
 class MainActivity : AppCompatActivity() {
