@@ -1,6 +1,7 @@
 package com.axb.criminalintent
 
 import android.content.Context
+import androidx.lifecycle.LiveData
 import androidx.room.Room
 import com.axb.criminalintent.bean.Crime
 import com.axb.criminalintent.database.CrimeDatabase
@@ -28,7 +29,7 @@ class CrimeRepository private constructor(context: Context) {
     private val database: CrimeDatabase = Room.databaseBuilder(
         context.applicationContext, CrimeDatabase::class.java,
         DATABASE_NAME
-    ).build()
+    ).addMigrations().build()
 
     private val crimeDao = database.crimeDao()
 
@@ -36,8 +37,8 @@ class CrimeRepository private constructor(context: Context) {
     * 添加两个仓库函数， 访问到DAO对象的相应数据库操作函数。
     *
     * */
-    fun getCrimes(): List<Crime> = crimeDao.getCrimes()
-    fun getCrime(id: UUID): Crime? = crimeDao.getCrime(id)
+    fun getCrimes(): LiveData<List<Crime>> = crimeDao.getCrimes()
+    fun getCrime(id: UUID): LiveData<Crime?> = crimeDao.getCrime(id)
 
     companion object {
         private var INSTANCE: CrimeRepository? = null
