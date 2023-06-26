@@ -3,6 +3,7 @@ package com.axb.criminalintent.fragment
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,8 +12,15 @@ import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import com.axb.criminalintent.R
 import com.axb.criminalintent.bean.Crime
+import com.axb.criminalintent.viewmodel.CrimeDetailViewModel
+import java.util.UUID
+
+private const val TAG = "CrimeFragment"
+private const val ARG_CRIME_ID = "crime_id"
 
 class CrimeFragment : Fragment() {
 
@@ -20,6 +28,10 @@ class CrimeFragment : Fragment() {
     private lateinit var titleField: TextView
     private lateinit var dateButton: Button
     private lateinit var solvedCheckBox: CheckBox
+
+    private val crimeDetailViewModel: CrimeDetailViewModel by lazy {
+        ViewModelProviders.of(this)[CrimeDetailViewModel::class.java]
+    }
 
     /*
     * 1.Fragment.onCreate(Bundle?)是公共函数， 而Activity.onCreate(Bundle?)是受保护函数
@@ -32,6 +44,12 @@ class CrimeFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         crime = Crime()
+
+        //从argument中获取crime ID
+        val crimeId: UUID = arguments?.getSerializable(ARG_CRIME_ID) as UUID
+        Log.d(TAG, "onCreate: args bundle crime ID: $crimeId ")
+
+        crimeDetailViewModel.loadCrime(crimeId)
     }
 
 
@@ -60,6 +78,16 @@ class CrimeFragment : Fragment() {
     }
 
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        crimeDetailViewModel.crimeLiveData.observe(
+            viewLifecycleOwner,
+            Observer { crime ->
+                crime?.let { this.crime = crime }
+                updateUI()
+            })
+    }
+
     /*
     * 在onStart()生命周期回调里给EditText部件添加监听器，
     *
@@ -75,13 +103,12 @@ class CrimeFragment : Fragment() {
 
         val titleWatcher = object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                TODO("Not yet implemented")
             }
-
             /*
-            * 调用CharSequence（代表用户输入） 的toString()函数。 该函数
-            * 最后返回用来设置Crime标题的字符串
-            * */
+             * 调用CharSequence（代表用户输入） 的toString()函数。 该函数
+             * 最后返回用来设置Crime标题的字符串
+             * */
+
             override fun onTextChanged(
                 sequence: CharSequence?,
                 start: Int,
@@ -92,7 +119,6 @@ class CrimeFragment : Fragment() {
             }
 
             override fun afterTextChanged(s: Editable?) {
-                TODO("Not yet implemented")
             }
         }
         titleField.addTextChangedListener(titleWatcher)
@@ -103,4 +129,30 @@ class CrimeFragment : Fragment() {
             }
         }
     }
+
+    override fun onStop() {
+        super.onStop()
+        crimeDetailViewModel.saveCrime(crime)
+    }
+
+    private fun updateUI() {
+        titleField.text = crime.title
+        dateButton.text = crime.date.toString()
+        solvedCheckBox.apply {
+            isChecked = crime.isSolved
+            jumpDrawablesToCurrentState()
+        }
+    }
+
+    companion object {
+        fun newInstance(crimeId: UUID): CrimeFragment {
+            val args = Bundle().apply {
+                putSerializable(ARG_CRIME_ID, crimeId)
+            }
+
+            return CrimeFragment().apply { arguments = args }
+        }
+
+    }
+
 }

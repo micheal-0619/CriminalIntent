@@ -2,10 +2,17 @@ package com.axb.criminalintent.activity
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import com.axb.criminalintent.R
+import com.axb.criminalintent.fragment.CrimeFragment
 import com.axb.criminalintent.fragment.CrimeListFragment
+import java.util.UUID
 
-class MainActivity : AppCompatActivity() {
+
+private const val TAG = "MainActivity"
+
+class MainActivity : AppCompatActivity(), CrimeListFragment.Callbacks {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -24,5 +31,22 @@ class MainActivity : AppCompatActivity() {
             supportFragmentManager.beginTransaction().add(R.id.fragment_container, fragment)
                 .commit()
         }
+    }
+
+    /*
+    * 按回退键， 整个应用界面退出了。 这是因为启动应用后， MainActivity是应用回退栈里唯一一个实例
+    * 显然， 通过按回退键， 用户期望从crime明细界面回到crime列表项界面。 要实现这个效果， 需要把替换事务
+    * 添加到回退栈里   .addToBackStack(null)
+    * */
+    override fun onCrimeSelected(crimeID: UUID) {
+        Log.d(TAG, "MainActivity.onCrimeSelected: $crimeID")
+
+        //val fragment = CrimeFragment()
+        val fragment=CrimeFragment.newInstance(crimeID)
+
+        supportFragmentManager.beginTransaction().replace(R.id.fragment_container, fragment)
+            .addToBackStack(null)
+            .commit()
+
     }
 }

@@ -6,6 +6,7 @@ import androidx.room.Room
 import com.axb.criminalintent.bean.Crime
 import com.axb.criminalintent.database.CrimeDatabase
 import java.util.UUID
+import java.util.concurrent.Executors
 
 
 /*
@@ -33,12 +34,26 @@ class CrimeRepository private constructor(context: Context) {
 
     private val crimeDao = database.crimeDao()
 
+    private val executor = Executors.newSingleThreadExecutor()
+
     /*
     * 添加两个仓库函数， 访问到DAO对象的相应数据库操作函数。
     *
     * */
     fun getCrimes(): LiveData<List<Crime>> = crimeDao.getCrimes()
     fun getCrime(id: UUID): LiveData<Crime?> = crimeDao.getCrime(id)
+
+    fun updateCrime(crime: Crime) {
+        executor.execute {
+            crimeDao.updateCrime(crime)
+        }
+    }
+
+    fun addCrime(crime: Crime) {
+        executor.execute {
+            crimeDao.addCrime(crime)
+        }
+    }
 
     companion object {
         private var INSTANCE: CrimeRepository? = null
