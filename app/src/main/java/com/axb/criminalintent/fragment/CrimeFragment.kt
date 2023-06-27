@@ -17,13 +17,15 @@ import androidx.lifecycle.ViewModelProviders
 import com.axb.criminalintent.R
 import com.axb.criminalintent.bean.Crime
 import com.axb.criminalintent.viewmodel.CrimeDetailViewModel
+import java.util.Date
 import java.util.UUID
 
 private const val TAG = "CrimeFragment"
 private const val ARG_CRIME_ID = "crime_id"
 private const val DIALOG_DATE = "DialogDate"
+private const val REQUEST_DATE = 0
 
-class CrimeFragment : Fragment() {
+class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
 
     private lateinit var crime: Crime
     private lateinit var titleField: TextView
@@ -128,6 +130,7 @@ class CrimeFragment : Fragment() {
 
         dateButton.setOnClickListener {
             DatePickerFragment.newInstance(crime.date).apply {
+                setTargetFragment(this@CrimeFragment, REQUEST_DATE)
                 show(
                     this@CrimeFragment.requireFragmentManager(),
                     DIALOG_DATE
@@ -139,6 +142,11 @@ class CrimeFragment : Fragment() {
     override fun onStop() {
         super.onStop()
         crimeDetailViewModel.saveCrime(crime)
+    }
+
+    override fun onDateSelected(date: Date) {
+        crime.date = date
+        updateUI()
     }
 
     private fun updateUI() {

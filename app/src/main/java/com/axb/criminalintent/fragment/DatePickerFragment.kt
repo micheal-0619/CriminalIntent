@@ -8,12 +8,30 @@ import android.view.View
 import androidx.fragment.app.DialogFragment
 import java.util.Calendar
 import java.util.Date
+import java.util.GregorianCalendar
 
 private const val ARG_DATE = "date"
 
 class DatePickerFragment : DialogFragment() {
 
+    /*
+    * 回调接口
+    * */
+    interface Callbacks {
+        fun onDateSelected(date: Date)
+    }
+
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+
+        /*
+        * 发回日期
+        * */
+
+        val dateListener = DatePickerDialog.OnDateSetListener { _, year, month, day ->
+            val resultDate: Date = GregorianCalendar(year, month, day).time
+            targetFragment?.let { fragment -> (fragment as Callbacks).onDateSelected(resultDate) }
+        }
+
         val date = arguments?.getSerializable(ARG_DATE) as Date
         val calendar = Calendar.getInstance()
         calendar.time = date
@@ -31,7 +49,7 @@ class DatePickerFragment : DialogFragment() {
         *
         * */
 
-        return DatePickerDialog(requireContext(), null, initialYear, initialMonth, initialDay)
+        return DatePickerDialog(requireContext(), dateListener, initialYear, initialMonth, initialDay)
     }
 
     companion object {
