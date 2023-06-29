@@ -161,7 +161,7 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
             setOnClickListener {
                 startActivityForResult(pickContactIntent, REQUEST_CONTACT)
             }
-
+            //pickContactIntent.addCategory(Intent.CATEGORY_HOME)//过滤器验证代码,选择嫌疑人变灰色
             val packageManager: PackageManager = requireActivity().packageManager
             val resolvedActivity: ResolveInfo? =
                 packageManager.resolveActivity(
