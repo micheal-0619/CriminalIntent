@@ -1,8 +1,10 @@
 package com.axb.criminalintent.fragment
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.text.format.DateFormat
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -24,6 +26,7 @@ private const val TAG = "CrimeFragment"
 private const val ARG_CRIME_ID = "crime_id"
 private const val DIALOG_DATE = "DialogDate"
 private const val REQUEST_DATE = 0
+private const val DATE_FORMAT = "EEE, MMM, dd"
 
 class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
 
@@ -31,6 +34,7 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
     private lateinit var titleField: TextView
     private lateinit var dateButton: Button
     private lateinit var solvedCheckBox: CheckBox
+    private lateinit var reportButton: Button
 
     private val crimeDetailViewModel: CrimeDetailViewModel by lazy {
         ViewModelProviders.of(this)[CrimeDetailViewModel::class.java]
@@ -64,14 +68,13 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
     * */
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_crime, container, false)
         titleField = view.findViewById(R.id.crime_title) as EditText
         dateButton = view.findViewById(R.id.crime_date) as Button
         solvedCheckBox = view.findViewById(R.id.crime_solved) as CheckBox
+        reportButton = view.findViewById(R.id.crime_report) as Button
 
         return view
     }
@@ -79,12 +82,10 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        crimeDetailViewModel.crimeLiveData.observe(
-            viewLifecycleOwner,
-            Observer { crime ->
-                crime?.let { this.crime = crime }
-                updateUI()
-            })
+        crimeDetailViewModel.crimeLiveData.observe(viewLifecycleOwner, Observer { crime ->
+            crime?.let { this.crime = crime }
+            updateUI()
+        })
     }
 
     /*
@@ -102,17 +103,13 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
 
         val titleWatcher = object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-            }
-            /*
+            }/*
              * 调用CharSequence（代表用户输入） 的toString()函数。 该函数
              * 最后返回用来设置Crime标题的字符串
              * */
 
             override fun onTextChanged(
-                sequence: CharSequence?,
-                start: Int,
-                before: Int,
-                count: Int
+                sequence: CharSequence?, start: Int, before: Int, count: Int
             ) {
                 crime.title = sequence.toString()
             }
@@ -132,10 +129,17 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
             DatePickerFragment.newInstance(crime.date).apply {
                 setTargetFragment(this@CrimeFragment, REQUEST_DATE)
                 show(
-                    this@CrimeFragment.requireFragmentManager(),
-                    DIALOG_DATE
+                    this@CrimeFragment.requireFragmentManager(), DIALOG_DATE
                 )
             }
+        }
+
+        reportButton.setOnClickListener {
+            Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_TEXT, getCrimeReport())
+                putExtra(Intent.EXTRA_SUBJECT, R.string.crime_report_subject)
+            }.also { intent -> startActivity(intent) }
         }
     }
 
@@ -156,6 +160,26 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
             isChecked = crime.isSolved
             jumpDrawablesToCurrentState()
         }
+    }
+
+    /*
+    * 格式化输出
+    * */
+    private fun getCrimeReport(): String {
+        val solvedString = if (crime.isSolved) {
+            getString(R.string.crime_report_solved)
+        } else {
+            getString(R.string.crime_report_unsolved)
+        }
+        val dateString = DateFormat.format(DATE_FORMAT, crime.date).toString()
+        var suspect = if (crime.suspect.isBlank()) {
+            getString(R.string.crime_report_no_suspect)
+        } else {
+            getString(R.string.crime_report_suspect, crime.suspect)
+        }
+        return getString(
+            R.string.crime_report, crime.title, dateString, solvedString, suspect
+        )
     }
 
     companion object {

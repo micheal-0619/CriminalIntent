@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.Room
 import com.axb.criminalintent.bean.Crime
 import com.axb.criminalintent.database.CrimeDatabase
+import com.axb.criminalintent.database.migration_1_2
 import java.util.UUID
 import java.util.concurrent.Executors
 
@@ -30,7 +31,7 @@ class CrimeRepository private constructor(context: Context) {
     private val database: CrimeDatabase = Room.databaseBuilder(
         context.applicationContext, CrimeDatabase::class.java,
         DATABASE_NAME
-    ).addMigrations().build()
+    ).addMigrations(migration_1_2).build()
 
     private val crimeDao = database.crimeDao()
 

@@ -16,7 +16,8 @@ data class Crime @Ignore constructor(
     @PrimaryKey var id: UUID = UUID.randomUUID(),
     var title: String = "",
     var date: Date = Date(),
-    var isSolved: Boolean = false
+    var isSolved: Boolean = false,
+    var suspect: String = ""
 ){
     constructor():this(UUID.randomUUID(),"",Date(),false)
 }
