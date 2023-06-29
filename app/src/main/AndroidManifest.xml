@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.axb.criminalintent">
 
+    <!--功能声明：告诉潜在用户应用有拍照功能-->
+    <uses-feature android:name="android.hardware.camera"
+        android:required="false"/>
+
     <application
         android:name=".CriminalIntentApplication"
         android:allowBackup="true"
