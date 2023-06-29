@@ -6,6 +6,7 @@ import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import com.axb.criminalintent.CrimeRepository
 import com.axb.criminalintent.bean.Crime
+import java.io.File
 import java.util.UUID
 
 class CrimeDetailViewModel : ViewModel() {
@@ -23,5 +24,10 @@ class CrimeDetailViewModel : ViewModel() {
 
     fun saveCrime(crime: Crime) {
         crimeRepository.updateCrime(crime)
+    }
+
+    //通过CrimeDetailViewModel展示文件信息
+    fun getPhotoFile(crime: Crime): File {
+        return crimeRepository.getPhotoFile(crime)
     }
 }

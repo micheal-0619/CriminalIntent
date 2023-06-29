@@ -20,4 +20,6 @@ data class Crime @Ignore constructor(
     var suspect: String = ""
 ){
     constructor():this(UUID.randomUUID(),"",Date(),false)
+    val photoFileName
+        get() = "IMG_$id.jpg"
 }

@@ -17,13 +17,17 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
+import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.axb.criminalintent.R
 import com.axb.criminalintent.bean.Crime
 import com.axb.criminalintent.viewmodel.CrimeDetailViewModel
+import java.io.File
 import java.util.Date
 import java.util.UUID
 
@@ -42,6 +46,11 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
     private lateinit var solvedCheckBox: CheckBox
     private lateinit var reportButton: Button
     private lateinit var suspectButton: Button
+
+    private lateinit var photoButton: ImageButton
+    private lateinit var photoView: ImageView
+    private lateinit var photoFile: File
+    private lateinit var photoUri: Uri
 
     private val crimeDetailViewModel: CrimeDetailViewModel by lazy {
         ViewModelProviders.of(this)[CrimeDetailViewModel::class.java]
@@ -84,6 +93,9 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
         reportButton = view.findViewById(R.id.crime_report) as Button
         suspectButton = view.findViewById(R.id.crime_suspect) as Button
 
+        photoButton = view.findViewById(R.id.crime_camera) as ImageButton
+        photoView = view.findViewById(R.id.crime_photo) as ImageView
+
         return view
     }
 
@@ -91,8 +103,13 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         crimeDetailViewModel.crimeLiveData.observe(viewLifecycleOwner, Observer { crime ->
-            crime?.let { this.crime = crime }
-            updateUI()
+            crime?.let { this.crime = crime
+                photoFile = crimeDetailViewModel.getPhotoFile(crime)
+                photoUri = FileProvider.getUriForFile(requireActivity(),
+                    "com.axb.criminalintent.fileprovider",
+                    photoFile)
+                updateUI()
+            }
         })
     }
 
